@@ -254,13 +254,111 @@ The project now has a persistent data foundation on which later memory, retrieva
 
 ---
 
+# v0.3.0 — Automated Testing
+
+## Objective
+
+Introduce automated testing to validate the behavior of the existing domain, application and persistence layers.
+
+The objective was not to achieve complete test coverage or redesign the architecture, but to establish a reliable test suite and use testing to identify real defects and architectural issues.
+
+---
+
+## Implemented
+
+* pytest-based automated test suite
+* unit tests for domain objects
+* unit tests for `PersistenceService` using test doubles
+* integration tests for database repositories
+* foreign-key constraint tests
+* persistence workflow testing
+* isolated PostgreSQL test database
+* database cleanup between tests
+* validation of database-generated identifiers and persisted relationships
+* validation of in-memory runtime state alongside persistent state
+
+External LLM communication is not part of the normal automated test suite. Tests do not make real API requests.
+
+---
+
+## Testing Scope
+
+### Domain
+
+Domain tests verify behavior such as:
+
+* message creation
+* username normalization
+* optional conversation identifiers
+* conversation initialization
+* adding messages to conversations
+* preservation of message order
+
+These tests do not require PostgreSQL or external services.
+
+### Application
+
+`PersistenceService` is tested independently from the real database by using test doubles for its repositories.
+
+The tests verify behaviors including:
+
+* creating a user when necessary
+* creating a conversation for a new user
+* assigning the conversation identifier to messages
+* reusing an existing runtime conversation
+* persisting subsequent messages
+* maintaining the current runtime context
+
+### Persistence
+
+Repository tests use a separate PostgreSQL test database.
+
+The tests verify:
+
+* user creation and retrieval
+* conversation creation
+* message creation and retrieval
+* conversation ownership
+* message ordering
+* foreign-key constraints
+* behavior when referenced records do not exist
+
+The test database is isolated from the development database and its schema is created through the same migration system used by the application.
+
+---
+
+## Testing and Design
+
+Testing exposed implementation issues that were not apparent during normal interactive use.
+
+One example was unintended shared state caused by a mutable default argument in the `Conversation` constructor. Because the same default list was reused between instances, tests executed together could affect one another.
+
+The issue was corrected by creating the conversation list for each `Conversation` instance.
+
+This reinforced the role of the test suite as both a validation mechanism and a way of discovering defects in the existing implementation.
+
+Testing did not result in a broad architectural refactor. The existing boundaries were retained where they remained sufficient for the current requirements.
+
+---
+
+## Result
+
+v0.3 established the project's first automated validation layer.
+
+The application now has tests covering:
+
+The test suite provides a baseline for modifying the system with greater confidence as new capabilities are introduced.
+
+The project remains a modular monolith, and no additional architectural abstractions were introduced.
+
+
+
 # Future Development
 
 Future versions will be defined as concrete requirements emerge.
 
 Potential areas include:
 
-* automated testing
 * API access
 * persistent memory
 * semantic retrieval

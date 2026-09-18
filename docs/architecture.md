@@ -229,6 +229,48 @@ Application services do not directly implement PostgreSQL queries.
 
 ---
 
+## Testing
+
+Automated tests validate the behavior of the existing architecture without becoming part of the runtime application.
+
+Tests are organized according to the layer or boundary being validated.
+
+```text
+tests/
+├── domain tests
+├── application tests
+├── repository/integration tests
+└── workflow tests
+```
+
+Domain tests run independently of external systems.
+
+Application tests can use test doubles to isolate application behavior from infrastructure.
+
+Repository and persistence tests use a separate PostgreSQL test database to validate actual database behavior, relationships and constraints.
+
+The test suite does not make real LLM API requests.
+
+Testing is therefore a validation mechanism around the application rather than an additional runtime layer:
+
+```text
+                ┌─────────────────────┐
+                │       Tests         │
+                │     validation      │
+                └──────────┬──────────┘
+                           │
+                           │ validates
+                           ▼
+Presentation → Application → Infrastructure
+                    │              │
+                    ▼              ▼
+                  Domain       PostgreSQL
+```
+
+Test-specific components such as test doubles and fixtures are kept within the test environment rather than being introduced into the production architecture solely to support testing.
+
+---
+
 ## Architectural Abstraction
 
 Abstractions are introduced when there is a concrete reason for them.
@@ -266,7 +308,7 @@ This allows the architecture to evolve through actual requirements and implement
 The current project structure is:
 
 ```text
-[A_PROJECT]/
+Project/
 │
 ├── main.py
 ├── alembic.ini
@@ -304,10 +346,23 @@ The current project structure is:
 │               ├── message_repository.py
 │               └── user_repository.py
 │
-└── presentation/
-    └── terminal.py
+├── presentation/
+│   └── terminal.py
+│
+└── tests/
+	├── conftest.py
+    ├── test_conversation_repository.py
+    ├── test_conversation.py
+    ├── test_message_repository.py
+    ├── test_message.py
+    ├── test_openai_provider.py
+    ├── test_persistence_service.py
+    ├── test_user_repository.py
+    └── test_persistence_workflow.py
 ```
 
 Alembic is maintained outside the runtime application layers because it manages database schema evolution rather than application execution.
 
 The JSON persistence implementation is retained as legacy infrastructure from v0.1.
+
+The `tests/` directory is separate from the runtime application because tests validate the application but are not themselves part of its execution architecture.

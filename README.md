@@ -23,7 +23,7 @@ Development is incremental. Each version introduces a specific capability or arc
 
 ## Current Status
 
-**Current version: v0.2 — PostgreSQL Persistence**
+**Current version: v0.3.0 — Automated Testing**
 
 The project currently has:
 
@@ -36,8 +36,10 @@ The project currently has:
 * Alembic database migrations
 * separation between domain and persistence models
 * runtime application context
+* automated tests for domain, application and persistence behavior
+* a separate PostgreSQL test database
 
-The next development focus is automated testing of the application and persistence layers.
+The next development focus will be determined by the requirements that emerge from the existing system.
 
 ---
 
@@ -79,7 +81,7 @@ See [`docs/development.md`](docs/development.md) for the development history.
 | `docs/architecture.md` | Current architecture and system boundaries  |
 | `docs/development.md`  | Version history and development progression |
 | `docs/database.md`     | Database model and persistence architecture |
-| `docs/decisions/`      | Significant architectural decisions         |
+| `docs/ADR.md/`         | Significant architectural decisions         |
 
 ---
 
@@ -89,20 +91,19 @@ The roadmap is directional rather than a fixed implementation schedule.
 
 Potential future areas include:
 
-1. Automated testing
-2. HTTP / REST API
-3. Persistent memory
-4. Embeddings and RAG
-5. Knowledge acquisition and web research
-6. Agent architecture
-7. Authentication and authorization
-8. Asynchronous processing
-9. Background workers and queues
-10. Machine-learning components
-11. Web interface
-12. Containerisation
-13. CI/CD
-14. Additional systems programming and infrastructure work
+1. HTTP / REST API
+2. Persistent memory
+3. Embeddings and RAG
+4. Knowledge acquisition and web research
+5. Agent architecture
+6. Authentication and authorization
+7. Asynchronous processing
+8. Background workers and queues
+9. Machine-learning components
+10. Web interface
+11. Containerisation
+12. CI/CD
+13. Additional systems programming and infrastructure work
 
 Technologies and features will be introduced when they solve an identified problem or support a concrete requirement. Planned components may therefore change, be reordered or be removed.
 

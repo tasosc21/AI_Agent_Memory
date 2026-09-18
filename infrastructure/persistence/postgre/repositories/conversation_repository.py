@@ -22,11 +22,13 @@ class ConversationRepository:
             return conversation
 
     def get(self, conversation_id: UUID) -> Sequence:
+        """
+        Gets all messages of a conversation.
+        """
         with self.session_factory() as session:
             statement = (
                 select(Message.role, Message.content)
                 .where(Message.conversation_id == conversation_id)
                 .order_by(Message.created_at)
             )
-
             return session.execute(statement).mappings().all()

@@ -3,8 +3,8 @@ from typing import cast
 from dotenv import load_dotenv
 from openai.types.shared import ReasoningEffort
 
-from application.conversationservice import ConversationService
-from application.persistenceservice import PersistenceService
+from application.conversation_service import ConversationService
+from application.persistence_service import PersistenceService
 from domain.context import Context
 from domain.message import Message
 from infrastructure.llm.openai_provider import OpenAIProvider
@@ -40,12 +40,12 @@ def main() -> None:
     )
 
     conversation_service = ConversationService(llm, context)
-    current_user = "test"
+    current_user = "stayzzy"
 
     while True:
 
         user_input = Message(
-            current_user,
+            current_user.lower(),
             "user",
             terminal.read(),
             None,

@@ -27,5 +27,6 @@ class MessageRepository:
 
             session.add(db_message)
             session.commit()
+            session.refresh(db_message)
 
             return db_message

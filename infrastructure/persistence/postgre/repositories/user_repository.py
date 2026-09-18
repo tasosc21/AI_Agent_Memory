@@ -11,7 +11,7 @@ class UserRepository:
 
     def create(self, username: str) -> User:
         with self.session_factory() as session:
-            user = User(username=username)
+            user = User(username=username.lower())
             session.add(user)
             session.commit()
             session.refresh(user)

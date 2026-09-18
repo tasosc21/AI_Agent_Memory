@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
+# load_dotenv(".env.test", override=True)
 
 db = os.getenv("DB")
 db_name = os.getenv("DB_NAME")
