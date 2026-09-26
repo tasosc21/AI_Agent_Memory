@@ -14,31 +14,32 @@ Use a **layered modular-monolith architecture**.
 
 The application remains a single deployable application while separating:
 
-* Presentation
-* Application
-* Domain
-* Infrastructure
+- Presentation
+- Application
+- Domain
+- Infrastructure
 
 ## Rationale
 
 This provides clear architectural boundaries without introducing the operational complexity of microservices.
 
-The architecture can be decomposed later if independent deployment, scaling or ownership becomes a genuine requirement.
+The architecture can be decomposed later if independent deployment, scaling, or ownership becomes a genuine requirement.
 
 ## Consequences
 
 ### Positive
 
-* simple deployment
-* simple local development
-* clear responsibility boundaries
-* low operational overhead
-* components can evolve independently within the application
+- simple deployment
+- simple local development
+- clear responsibility boundaries
+- low operational overhead
+- components can evolve behind defined boundaries within the application
 
 ### Negative
 
-* components still share one application runtime
-* future decomposition may require additional boundary work
+- components still share one application runtime
+- components cannot be independently deployed or scaled
+- future decomposition may require additional boundary work
 
 ## Revisit When
 
@@ -54,17 +55,19 @@ Consider decomposition only when concrete requirements justify independently dep
 
 The initial v0.1 implementation used a JSON file for conversation persistence.
 
-The system now needs to represent:
+As the application developed, persistent state expanded to include:
 
-* multiple users
-* multiple conversations per user
-* multiple messages per conversation
-* relationships between these entities
-* persistent identifiers
-* timestamps
-* structured queries
+- multiple users
+- multiple conversations per user
+- multiple messages per conversation
+- meetings containing multiple conversations
+- relationships between these entities
+- persistent identifiers
+- timestamps
+- user and conversation summaries
+- structured queries and updates
 
-A flat JSON document is not an appropriate long-term persistence model for these requirements.
+A flat JSON document is not an appropriate primary persistence model for these requirements.
 
 ## Decision
 
@@ -76,18 +79,22 @@ SQLAlchemy is used for ORM-based database access and Alembic is used for schema 
 
 A relational database provides:
 
-* explicit relationships
-* foreign-key constraints
-* structured querying
-* transaction support
-* schema evolution
-* a foundation for future persistence requirements
+- explicit relationships
+- foreign-key constraints
+- structured querying
+- transaction support
+- schema evolution
+- a foundation for future persistence requirements
+
+The relational model also provides a durable foundation for the application's future memory and retrieval capabilities.
 
 ## Consequences
 
-The application gains a more robust persistence foundation but also introduces database infrastructure, migrations and session/transaction management.
+The application gains a robust persistence foundation but also introduces database infrastructure, migrations, and session/transaction management.
 
-The additional complexity is justified by the transition from a single conversation prototype to a multi-user persistent application.
+The additional complexity is justified by the transition from a single-conversation prototype to a persistent application with multiple related entities.
+
+The original JSON persistence implementation remains as legacy infrastructure but is no longer part of the active persistence workflow.
 
 ---
 
@@ -97,9 +104,9 @@ The additional complexity is justified by the transition from a single conversat
 
 ## Context
 
-The application needs to represent concepts such as users, conversations and messages while PostgreSQL requires its own persistence representation.
+The application needs to represent concepts such as users, conversations, messages, meetings, and runtime context, while PostgreSQL requires its own persistence representation.
 
-A direct one-to-one dependency between domain objects and SQLAlchemy models would couple application concepts to the database implementation.
+A direct dependency between domain objects and SQLAlchemy models would couple application concepts to the database implementation.
 
 ## Decision
 
@@ -115,30 +122,3 @@ SQLAlchemy Model
       ▼
 PostgreSQL
 ```
-
-## Rationale
-
-The domain model and database schema serve different purposes.
-
-The domain represents concepts and behaviour required by the application.
-
-The persistence model represents how those concepts are stored.
-
-Keeping them separate allows either side to evolve without unnecessarily forcing changes onto the other.
-
-## Consequences
-
-### Positive
-
-* reduced coupling to SQLAlchemy
-* domain model remains persistence-independent
-* database schema can evolve independently
-* persistence concerns remain isolated
-
-### Negative
-
-* mapping between domain and persistence models introduces additional code
-
-## Revisit When
-
-The separation should be reconsidered if it creates significant unnecessary complexity relative to the actual domain requirements.

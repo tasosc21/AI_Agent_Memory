@@ -1,28 +1,35 @@
-from sqlalchemy import select
+from sqlalchemy import select, update, func
+from sqlalchemy.orm import Session
 
-from infrastructure.persistence.postgre.database import SessionFactory
-from infrastructure.persistence.postgre.models import User
+from infrastructure.persistence.postgre.models import User as DBUser
+from domain.context import Context
 
 
 class UserRepository:
 
-    def __init__(self) -> None:
-        self.session_factory = SessionFactory
+    def create(self, session: Session, username: str) -> DBUser:
+        user = DBUser(username=username.lower())
+        session.add(user)
+        session.flush()
 
-    def create(self, username: str) -> User:
-        with self.session_factory() as session:
-            user = User(username=username.lower())
-            session.add(user)
-            session.commit()
-            session.refresh(user)
+        return user
 
-            return user
+    def get(self, session: Session, username: str) -> DBUser | None:
+        statement = (
+            select(DBUser)
+            .where(DBUser.username == username.lower())
+        )
 
-    def get(self, username: str) -> User | None:
-        with self.session_factory() as session:
-            statement = (
-                select(User)
-                .where(User.username == username)
+        return session.scalar(statement)
+
+    def update(self, session: Session, user: Context) -> None:
+        statement = (
+            update(DBUser)
+            .where(DBUser.user_id == user.user_id)
+            .values(
+                summary=user.summary,
+                profile=user.profile,
+                last_interaction_at=func.now()
             )
-
-            return session.scalar(statement)
+        )
+        session.execute(statement)

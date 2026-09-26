@@ -17,7 +17,24 @@ class User(Base):
         primary_key=True,
         server_default=func.gen_random_uuid(),
     )
-    username: Mapped[str] = mapped_column(String(50), nullable=False)
+    username: Mapped[str] = mapped_column(
+        String(50),
+        unique=True,
+        nullable=False,
+    )
+    profile: Mapped[str] = mapped_column(
+        Text,
+        server_default="",
+    )
+    summary: Mapped[str] = mapped_column(
+        Text,
+        server_default="",
+    )
+    last_interaction_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=func.now(),
+        nullable=False,
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
@@ -25,7 +42,7 @@ class User(Base):
     )
 
     conversations: Mapped[list["Conversation"]] = relationship(
-        back_populates="user"
+        back_populates="user",
     )
 
 
@@ -37,10 +54,19 @@ class Conversation(Base):
         primary_key=True,
         server_default=func.gen_random_uuid(),
     )
+    meeting_id: Mapped[UUID] = mapped_column(
+        Uuid,
+        ForeignKey("meetings.meeting_id"),
+        nullable=False,
+    )
     user_id: Mapped[UUID] = mapped_column(
         Uuid,
         ForeignKey("users.user_id"),
         nullable=False,
+    )
+    summary: Mapped[str] = mapped_column(
+        Text,
+        server_default="",
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -48,9 +74,41 @@ class Conversation(Base):
         server_default=func.now(),
     )
 
-    user: Mapped["User"] = relationship(back_populates="conversations")
+    user: Mapped["User"] = relationship(
+        back_populates="conversations",
+    )
+    meeting: Mapped["Meeting"] = relationship(
+        back_populates="conversations",
+    )
     messages: Mapped[list["Message"]] = relationship(
-        back_populates="conversation"
+        back_populates="conversation",
+    )
+
+
+class Meeting(Base):
+    __tablename__ = "meetings"
+
+    meeting_id: Mapped[UUID] = mapped_column(
+        Uuid,
+        primary_key=True,
+        server_default=func.gen_random_uuid(),
+    )
+    summary: Mapped[str] = mapped_column(
+        Text,
+        server_default="",
+    )
+    start: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+    finish: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    conversations: Mapped[list["Conversation"]] = relationship(
+        back_populates="meeting",
     )
 
 
@@ -67,8 +125,14 @@ class Message(Base):
         ForeignKey("conversations.conversation_id"),
         nullable=False,
     )
-    role: Mapped[str] = mapped_column(String(10), nullable=False)
-    content: Mapped[str] = mapped_column(Text, nullable=False)
+    role: Mapped[str] = mapped_column(
+        String(10),
+        nullable=False,
+    )
+    content: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
@@ -76,56 +140,5 @@ class Message(Base):
     )
 
     conversation: Mapped["Conversation"] = relationship(
-        back_populates="messages"
+        back_populates="messages",
     )
-
-
-
-
-
-# from sqlalchemy import (Column, Uuid, String, Text,
-#                         DateTime, ForeignKey, func)
-# from sqlalchemy.orm import declarative_base, relationship
-# from infrastructure.persistence.postgre.database import engine
-
-
-# Base = declarative_base()
-
-
-# # -------------------------
-# # User
-# # -------------------------
-
-# class User(Base):
-#     __tablename__ = "users"
-#     user_id = Column(Uuid, primary_key=True, server_default=func.gen_random_uuid())
-#     username = Column(String(50), nullable=False)
-#     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-#     conversations = relationship("Conversation", back_populates="user")
-
-
-# # -------------------------
-# # Conversation
-# # -------------------------
-
-# class Conversation(Base):
-#     __tablename__ = "conversations"
-#     conversation_id = Column(Uuid, primary_key=True, server_default=func.gen_random_uuid())
-#     user_id = Column(Uuid, ForeignKey("users.user_id"), nullable=False)
-#     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-#     user = relationship("User", back_populates="conversations")
-#     messages = relationship("Message", back_populates="conversation")
-
-
-# # -------------------------
-# # Message
-# # -------------------------
-
-# class Message(Base):
-#     __tablename__ = "messages"
-#     message_id = Column(Uuid, primary_key=True, server_default=func.gen_random_uuid())
-#     conversation_id = Column(Uuid, ForeignKey("conversations.conversation_id"), nullable=False)
-#     role = Column(String(10), nullable=False)
-#     content = Column(Text, nullable=False)
-#     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-#     conversation = relationship("Conversation", back_populates="messages")

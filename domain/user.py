@@ -3,12 +3,12 @@ from uuid import UUID
 
 
 @dataclass
-class Message:
+class User:
 
+    id: UUID
     username: str
-    role: str
-    content: str
-    conversation_id: UUID | None
+    profile: str
+    summary: str
 
     def __post_init__(self):
         if self.username:

@@ -18,4 +18,4 @@ engine = create_engine(
     f"{db}{db_role}:{db_password}@localhost:5432/{db_name}"
 )
 
-SessionFactory = sessionmaker(bind=engine)
+SessionFactory = sessionmaker(bind=engine)  # Change this

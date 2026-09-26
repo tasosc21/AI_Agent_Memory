@@ -1,3 +1,66 @@
+# AI_Agent_Memory
+
+> A persistent AI assistant developed as a long-term software engineering and machine learning project.
+
+## Overview
+
+AI_Agent_Memory is an AI assistant developed as a software system rather than as a single LLM wrapper.
+
+The long-term objective is to build a persistent assistant capable of:
+
+* conversing with users
+* maintaining long-term memory
+* distinguishing between users and conversations
+* maintaining context across interactions
+* acquiring knowledge from conversations, documents and external sources
+* retrieving relevant knowledge and memories
+* using external tools
+* maintaining evolving internal state
+
+Development is incremental. Each version introduces a specific capability or architectural improvement while keeping the system understandable and maintainable.
+
+---
+
+## Current Status
+
+**Current version: v0.4.0 — Context & Conversation Continuity**
+
+The project currently has:
+
+* a layered modular-monolith architecture
+* terminal-based interaction
+* LLM integration
+* PostgreSQL persistence
+* users, meetings, conversations and messages
+* user profiles and summaries
+* conversation summaries
+* meeting-level summaries
+* runtime context management
+* SQLAlchemy ORM
+* Alembic database migrations
+* separation between domain and persistence models
+* automated tests for domain, application and persistence behavior
+* a separate PostgreSQL test database
+
+Version 0.4 introduced runtime context and conversation continuity, allowing AI_Agent to maintain active conversational context for individual users while also tracking the broader meeting.
+
+The next development focus will be persistent memory and the definition of what constitutes a memory within the system.
+
+---
+
+## Architecture
+
+The application uses a **layered modular-monolith architecture**.
+
+```text
+Presentation
+     ↓
+Application
+     ↓
+Domain
+     ↑
+Infrastructure
+```
 
 # AI_Agent_Memory
 
